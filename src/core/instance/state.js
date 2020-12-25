@@ -108,7 +108,7 @@ function initProps (vm: Component, propsOptions: Object) {
   }
   toggleObserving(true)
 }
-
+/** 初始化data */
 function initData (vm: Component) {
   let data = vm.$options.data
   data = vm._data = typeof data === 'function'
@@ -315,7 +315,7 @@ function createWatcher (
   }
   return vm.$watch(expOrFn, handler, options)
 }
-
+/** 构造函数原型上加入 $data $props $watch 等属性 */
 export function stateMixin (Vue: Class<Component>) {
   // flow somehow has problems with directly declared definition object
   // when using Object.defineProperty, so we have to procedurally build up

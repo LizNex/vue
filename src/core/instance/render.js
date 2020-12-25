@@ -16,6 +16,7 @@ import VNode, { createEmptyVNode } from '../vdom/vnode'
 
 import { isUpdatingChildComponent } from './lifecycle'
 
+/** 初始化render相关实例 */
 export function initRender (vm: Component) {
   vm._vnode = null // the root of the child tree
   vm._staticTrees = null // v-once cached trees
@@ -57,7 +58,7 @@ export let currentRenderingInstance: Component | null = null
 export function setCurrentRenderingInstance (vm: Component) {
   currentRenderingInstance = vm
 }
-
+/** 为vue的构造函数原型上加入render $nextTick 等函数 */
 export function renderMixin (Vue: Class<Component>) {
   // install runtime convenience helpers
   installRenderHelpers(Vue.prototype)
