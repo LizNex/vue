@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,17 +7,26 @@
   <title>Document</title>
 </head>
 <body>
-  <div id="app">
-    <div v-if="isShow">1111</div>
+  <div class="parent" id="app">
+    <div class="child"  v-if="isShow">1111</div>
+    <keep-alive :max="1">
+        <input type="text"  v-model="value"  v-if="!isShow">
+        <input type="text"  v-model="value2" v-if="isShow">
+    </keep-alive>
+    <button @click="isShow = !isShow">按钮</button>
+    
   </div>
+
   <script>
     new Vue({
       el:"#app",
       data(){
         return {
-          isShow:true
+          isShow:false,
+          value:"",
+          value2:""
         }
-      }
+      },
     })
     
   </script>

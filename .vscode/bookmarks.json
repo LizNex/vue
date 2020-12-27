@@ -1,0 +1,62 @@
+[
+	{
+		"path": "$ROOTPATH$/src/core/instance/index.js",
+		"bookmarks": [
+			{
+				"line": 8,
+				"column": 24,
+				"label": "vue 构造函数"
+			}
+		]
+	},
+	{
+		"path": "$ROOTPATH$/src/core/instance/render.js",
+		"bookmarks": [
+			{
+				"line": 92,
+				"column": 2,
+				"label": "生成虚拟节点"
+			}
+		]
+	},
+	{
+		"path": "$ROOTPATH$/src/core/instance/lifecycle.js",
+		"bookmarks": [
+			{
+				"line": 58,
+				"column": 19,
+				"label": "更新 _updata"
+			}
+		]
+	},
+	{
+		"path": "$ROOTPATH$/src/core/vdom/patch.js",
+		"bookmarks": [
+			{
+				"line": 124,
+				"column": 22,
+				"label": ""
+			},
+			{
+				"line": 209,
+				"column": 9,
+				"label": ""
+			},
+			{
+				"line": 220,
+				"column": 43,
+				"label": "vnode.componentInstane 初始化"
+			},
+			{
+				"line": 238,
+				"column": 50,
+				"label": ""
+			},
+			{
+				"line": 699,
+				"column": 6,
+				"label": "patch: vnode 转换为实际节点"
+			}
+		]
+	}
+]
