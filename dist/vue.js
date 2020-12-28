@@ -1784,18 +1784,19 @@
       " Expected " + (expectedTypes.map(capitalize).join(', '));
     var expectedType = expectedTypes[0];
     var receivedType = toRawType(value);
-    var expectedValue = styleValue(value, expectedType);
-    var receivedValue = styleValue(value, receivedType);
     // check if we need to specify expected value
-    if (expectedTypes.length === 1 &&
-        isExplicable(expectedType) &&
-        !isBoolean(expectedType, receivedType)) {
-      message += " with value " + expectedValue;
+    if (
+      expectedTypes.length === 1 &&
+      isExplicable(expectedType) &&
+      isExplicable(typeof value) &&
+      !isBoolean(expectedType, receivedType)
+    ) {
+      message += " with value " + (styleValue(value, expectedType));
     }
     message += ", got " + receivedType + " ";
     // check if we need to specify received value
     if (isExplicable(receivedType)) {
-      message += "with value " + receivedValue + ".";
+      message += "with value " + (styleValue(value, receivedType)) + ".";
     }
     return message
   }
@@ -1810,9 +1811,9 @@
     }
   }
 
+  var EXPLICABLE_TYPES = ['string', 'number', 'boolean'];
   function isExplicable (value) {
-    var explicitTypes = ['string', 'number', 'boolean'];
-    return explicitTypes.some(function (elem) { return value.toLowerCase() === elem; })
+    return EXPLICABLE_TYPES.some(function (elem) { return value.toLowerCase() === elem; })
   }
 
   function isBoolean () {
@@ -2104,7 +2105,10 @@
         return target[key]
       }
     };
-
+    /** 初始化代理
+     * 有proxy的话_renderProxy 设为proxy对象
+     * 没有proxy的话 _renderProxy 设为vm  
+     */
     initProxy = function initProxy (vm) {
       if (hasProxy) {
         // determine which proxy handler to use
@@ -3273,8 +3277,10 @@
   }
 
   function createComponentInstanceForVnode (
-    vnode, // we know it's MountedComponentVNode but flow doesn't
-    parent // activeInstance in lifecycle state
+    // we know it's MountedComponentVNode but flow doesn't
+    vnode,
+    // activeInstance in lifecycle state
+    parent
   ) {
     var options = {
       _isComponent: true,
@@ -3548,6 +3554,7 @@
         // separately from one another. Nested component's render fns are called
         // when parent component is patched.
         currentRenderingInstance = vm;
+        /** 调用render */
         vnode = render.call(vm._renderProxy, vm.$createElement);
       } catch (e) {
         handleError(e, vm, "render");
@@ -4957,8 +4964,9 @@
 
   var uid$3 = 0;
 
-  function initMixin (Vue) {
+  function initMixin(Vue) {
     Vue.prototype._init = function (options) {
+      /** vm 是当前vue对象实例 */
       var vm = this;
       // a uid
       vm._uid = uid$3++;
@@ -4995,11 +5003,11 @@
       initLifecycle(vm);
       initEvents(vm);
       initRender(vm);
-      callHook(vm, 'beforeCreate');
+      callHook(vm, "beforeCreate");
       initInjections(vm); // resolve injections before data/props
       initState(vm);
       initProvide(vm); // resolve provide after data/props
-      callHook(vm, 'created');
+      callHook(vm, "created");
 
       /* istanbul ignore if */
       if (config.performance && mark) {
@@ -5007,15 +5015,18 @@
         mark(endTag);
         measure(("vue " + (vm._name) + " init"), startTag, endTag);
       }
-
+      /** 渲染入口 */
       if (vm.$options.el) {
         vm.$mount(vm.$options.el);
       }
     };
   }
 
-  function initInternalComponent (vm, options) {
-    var opts = vm.$options = Object.create(vm.constructor.options);
+  function initInternalComponent(
+    vm,
+    options
+  ) {
+    var opts = (vm.$options = Object.create(vm.constructor.options));
     // doing this because it's faster than dynamic enumeration.
     var parentVnode = options._parentVnode;
     opts.parent = options.parent;
@@ -5033,7 +5044,7 @@
     }
   }
 
-  function resolveConstructorOptions (Ctor) {
+  function resolveConstructorOptions(Ctor) {
     var options = Ctor.options;
     if (Ctor.super) {
       var superOptions = resolveConstructorOptions(Ctor.super);
@@ -5054,10 +5065,10 @@
         }
       }
     }
-    return options
+    return options;
   }
 
-  function resolveModifiedOptions (Ctor) {
+  function resolveModifiedOptions(Ctor) {
     var modified;
     var latest = Ctor.options;
     var sealed = Ctor.sealedOptions;
@@ -5067,13 +5078,13 @@
         modified[key] = latest[key];
       }
     }
-    return modified
+    return modified;
   }
 
-  function Vue (options) {
-    if (!(this instanceof Vue)
-    ) {
-      warn('Vue is a constructor and should be called with the `new` keyword');
+  /** 入口,vue的构造函数 */
+  function Vue(options) {
+    if (!(this instanceof Vue)) {
+      warn("Vue is a constructor and should be called with the `new` keyword");
     }
     this._init(options);
   }
@@ -5243,37 +5254,9 @@
 
 
 
-  function getComponentName (opts) {
-    return opts && (opts.Ctor.options.name || opts.tag)
-  }
 
-  function matches (pattern, name) {
-    if (Array.isArray(pattern)) {
-      return pattern.indexOf(name) > -1
-    } else if (typeof pattern === 'string') {
-      return pattern.split(',').indexOf(name) > -1
-    } else if (isRegExp(pattern)) {
-      return pattern.test(name)
-    }
-    /* istanbul ignore next */
-    return false
-  }
 
-  function pruneCache (keepAliveInstance, filter) {
-    var cache = keepAliveInstance.cache;
-    var keys = keepAliveInstance.keys;
-    var _vnode = keepAliveInstance._vnode;
-    for (var key in cache) {
-      var cachedNode = cache[key];
-      if (cachedNode) {
-        var name = getComponentName(cachedNode.componentOptions);
-        if (name && !filter(name)) {
-          pruneCacheEntry(cache, key, keys, _vnode);
-        }
-      }
-    }
-  }
-
+  /** 根据key删除某个缓存 */
   function pruneCacheEntry (
     cache,
     key,
@@ -5288,17 +5271,11 @@
     remove(keys, key);
   }
 
-  var patternTypes = [String, RegExp, Array];
 
-  var KeepAlive = {
+  var KeepAliveSimple = {
     name: 'keep-alive',
     abstract: true,
 
-    props: {
-      include: patternTypes,
-      exclude: patternTypes,
-      max: [String, Number]
-    },
 
     created: function created () {
       this.cache = Object.create(null);
@@ -5306,71 +5283,56 @@
     },
 
     destroyed: function destroyed () {
+      /** 当销毁时清除所有缓存 */
       for (var key in this.cache) {
         pruneCacheEntry(this.cache, key, this.keys);
       }
     },
 
-    mounted: function mounted () {
-      var this$1 = this;
-
-      this.$watch('include', function (val) {
-        pruneCache(this$1, function (name) { return matches(val, name); });
-      });
-      this.$watch('exclude', function (val) {
-        pruneCache(this$1, function (name) { return !matches(val, name); });
-      });
-    },
 
     render: function render () {
+      /** 获取子组件 */
       var slot = this.$slots.default;
+      /** 获取子组件vnode */
       var vnode = getFirstComponentChild(slot);
+      /** 获取子组件配置 */
       var componentOptions = vnode && vnode.componentOptions;
+      /** 存在子组件的情况 */
       if (componentOptions) {
-        // check pattern
-        var name = getComponentName(componentOptions);
+        /** keep-alive 的缓存和缓存的keys */
         var ref = this;
-        var include = ref.include;
-        var exclude = ref.exclude;
-        if (
-          // not included
-          (include && (!name || !matches(include, name))) ||
-          // excluded
-          (exclude && name && matches(exclude, name))
-        ) {
-          return vnode
-        }
-
-        var ref$1 = this;
-        var cache = ref$1.cache;
-        var keys = ref$1.keys;
+        var cache = ref.cache;
+        var keys = ref.keys;
+        /** 获取子组件的key */
         var key = vnode.key == null
           // same constructor may get registered as different local components
           // so cid alone is not enough (#3269)
           ? componentOptions.Ctor.cid + (componentOptions.tag ? ("::" + (componentOptions.tag)) : '')
           : vnode.key;
+        /** 缓存中有该子组件的key */
         if (cache[key]) {
+          /** 替换组件的实例为缓存实例 */
           vnode.componentInstance = cache[key].componentInstance;
           // make current key freshest
           remove(keys, key);
           keys.push(key);
         } else {
+          /** 子组件加入缓存 */
           cache[key] = vnode;
           keys.push(key);
-          // prune oldest entry
-          if (this.max && keys.length > parseInt(this.max)) {
-            pruneCacheEntry(cache, keys[0], keys, this._vnode);
-          }
         }
-
+        /** 给子组件加上 keep-alive 标记 */
         vnode.data.keepAlive = true;
       }
+      /** 返回子组件 */
       return vnode || (slot && slot[0])
     }
   };
 
+  // import KeepAlive from './keep-alive'
+
   var builtInComponents = {
-    KeepAlive: KeepAlive
+    KeepAlive:KeepAliveSimple
   };
 
   /*  */
@@ -5480,7 +5442,7 @@
     'default,defaultchecked,defaultmuted,defaultselected,defer,disabled,' +
     'enabled,formnovalidate,hidden,indeterminate,inert,ismap,itemscope,loop,multiple,' +
     'muted,nohref,noresize,noshade,novalidate,nowrap,open,pauseonexit,readonly,' +
-    'required,reversed,scoped,seamless,selected,sortable,translate,' +
+    'required,reversed,scoped,seamless,selected,sortable,' +
     'truespeed,typemustmatch,visible'
   );
 
@@ -6705,7 +6667,7 @@
       cur = attrs[key];
       old = oldAttrs[key];
       if (old !== cur) {
-        setAttr(elm, key, cur);
+        setAttr(elm, key, cur, vnode.data.pre);
       }
     }
     // #4391: in IE9, setting type can reset value for input[type=radio]
@@ -6725,8 +6687,8 @@
     }
   }
 
-  function setAttr (el, key, value) {
-    if (el.tagName.indexOf('-') > -1) {
+  function setAttr (el, key, value, isInPre) {
+    if (isInPre || el.tagName.indexOf('-') > -1) {
       baseSetAttr(el, key, value);
     } else if (isBooleanAttr(key)) {
       // set attribute for blank value
@@ -9247,7 +9209,7 @@
 
   // Regular Expressions for parsing tags and attributes
   var attribute = /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/;
-  var dynamicArgAttribute = /^\s*((?:v-[\w-]+:|@|:|#)\[[^=]+\][^\s"'<>\/=]*)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/;
+  var dynamicArgAttribute = /^\s*((?:v-[\w-]+:|@|:|#)\[[^=]+?\][^\s"'<>\/=]*)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/;
   var ncname = "[a-zA-Z_][\\-\\.0-9_a-zA-Z" + (unicodeRegExp.source) + "]*";
   var qnameCapture = "((?:" + ncname + "\\:)?" + ncname + ")";
   var startTagOpen = new RegExp(("^<" + qnameCapture));
@@ -10850,9 +10812,9 @@
         code += genModifierCode;
       }
       var handlerCode = isMethodPath
-        ? ("return " + (handler.value) + "($event)")
+        ? ("return " + (handler.value) + ".apply(null, arguments)")
         : isFunctionExpression
-          ? ("return (" + (handler.value) + ")($event)")
+          ? ("return (" + (handler.value) + ").apply(null, arguments)")
           : isFunctionInvocation
             ? ("return " + (handler.value))
             : handler.value;
@@ -11921,7 +11883,7 @@
         if (config.performance && mark) {
           mark('compile');
         }
-
+        /** 将html模板转换为render函数 */
         var ref = compileToFunctions(template, {
           outputSourceRange: "development" !== 'production',
           shouldDecodeNewlines: shouldDecodeNewlines,
@@ -11963,3 +11925,4 @@
   return Vue;
 
 }));
+//# sourceMappingURL=vue.js.map
