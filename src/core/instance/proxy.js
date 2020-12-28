@@ -74,7 +74,10 @@ if (process.env.NODE_ENV !== 'production') {
       return target[key]
     }
   }
-
+  /** 初始化代理
+   * 有proxy的话_renderProxy 设为proxy对象
+   * 没有proxy的话 _renderProxy 设为vm  
+   */
   initProxy = function initProxy (vm) {
     if (hasProxy) {
       // determine which proxy handler to use
