@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8">
+    <title>keep-alive example</title>
+    <script src="../../dist/vue.js"></script>
+    <!-- template for the component -->
+    <!-- <script type="text/x-template" id="demoText">
+      <div>
+        <span>{{name}}</span> 
+        <input type="text" v-model="text">
+      </div>
+      </div>
+    </script> -->
+  </head>
+  <body>
+
+    <div id="app">
+      <!-- <div>
+        <button @click="notAliveToggle = !notAliveToggle">not-alive</button>
+        <button @click="aliveToggle = !aliveToggle">alive</button>
+      </div>
+      <Demo-Text name="not-alive" v-if="notAliveToggle"></Demo-Text>
+      <keep-alive v-if="notAliveToggle">
+        <Demo-Text name="alive" v-if="aliveToggle"></Demo-Text>
+      </keep-alive> -->
+      <div v-show="isShow">111</div>
+    </div>
+
+    <script>
+    // Vue.component('demo-text', {
+    //   template: '#demoText',
+    //   data: function () {
+    //     return {
+    //       text:""
+    //     }
+    //   },
+    //   props:["name"]
+    // })
+    // debugger
+    new Vue({ 
+      el: '#app',
+      data(){
+        return {
+          isShow:false
+        }
+      }
+    })
+    </script>
+  </body>
+</html>
